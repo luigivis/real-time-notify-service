@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.luigivismara</groupId>
     <artifactId>service-distribuid-notifications</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1.0</version>
     <name>service-distribuid-notifications</name>
     <description>service-distribuid-notifications</description>
     <url/>

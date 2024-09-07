@@ -11,7 +11,7 @@
 
 	<groupId>com.luigivismara</groupId>
 	<artifactId>service-api-gateway</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>1.0</version>
 	<name>api-gateway</name>
 	<description>api-gateway</description>
 
