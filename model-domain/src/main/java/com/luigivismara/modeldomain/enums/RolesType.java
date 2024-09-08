@@ -1,5 +1,5 @@
 package com.luigivismara.modeldomain.enums;
 
-public enum Roles {
-    ADMIN, REGULAR
+public enum RolesType {
+    ADMIN, USER, GUEST
 }

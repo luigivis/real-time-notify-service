@@ -1,10 +1,9 @@
 package com.luigivismara.modeldomain.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import com.luigivismara.modeldomain.enums.RolesType;
+import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
@@ -14,10 +13,23 @@ import java.util.UUID;
 @Entity(name = "user")
 @DynamicInsert
 @DynamicUpdate
-public class UserEntity {
+@EqualsAndHashCode(callSuper = true)
+public class UserEntity extends StandardEntitiesRows{
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID uuid;
+    @Column(name = "user_id", nullable = false, updatable = false)
+    private UUID userId;
 
+    @Column(nullable = false)
+    private String username;
+
+    @Column(nullable = false, unique = true)
+    private String email;
+
+    @Column(nullable = false)
+    private String password;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private RolesType role;
 }

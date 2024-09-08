@@ -3,37 +3,17 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.luigivismara</groupId>
+    <parent>
+        <groupId>com.luigivismara</groupId>
+        <artifactId>microservice-parent</artifactId>
+        <version>0.0.1</version>
+        <relativePath/>
+    </parent>
+
     <artifactId>model-domain</artifactId>
     <version>0.0.1</version>
     <name>model-domain</name>
     <description>model-domain</description>
-
-    <properties>
-        <java.version>21</java.version>
-        <lombok.version>1.18.28</lombok.version>
-        <jpa.version>3.3.3</jpa.version>
-        <hibernate.version>6.2.0.Final</hibernate.version>
-    </properties>
-
-    <dependencies>
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <optional>true</optional>
-            <version>${lombok.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-jpa</artifactId>
-            <version>${jpa.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.hibernate.orm</groupId>
-            <artifactId>hibernate-core</artifactId>
-            <version>${hibernate.version}</version>
-        </dependency>
-    </dependencies>
 
     <build>
         <plugins>
