@@ -14,7 +14,7 @@ import java.util.UUID;
 @DynamicInsert
 @DynamicUpdate
 @EqualsAndHashCode(callSuper = true)
-public class NotificationEntity extends StandardEntitiesRows {
+public class NotificationEntity extends AbstractAuditableEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -34,4 +34,9 @@ public class NotificationEntity extends StandardEntitiesRows {
 
     @Column(nullable = false)
     private boolean isRead;
+
+    @Override
+    public UUID getId() {
+        return this.notificationId;
+    }
 }

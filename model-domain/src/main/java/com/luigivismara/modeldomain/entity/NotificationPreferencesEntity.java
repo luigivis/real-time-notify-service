@@ -13,7 +13,7 @@ import java.util.UUID;
 @DynamicInsert
 @DynamicUpdate
 @EqualsAndHashCode(callSuper = true)
-public class NotificationPreferencesEntity extends StandardEntitiesRows {
+public class NotificationPreferencesEntity extends AbstractAuditableEntity {
 
     @Id
     @GeneratedValue
@@ -32,4 +32,9 @@ public class NotificationPreferencesEntity extends StandardEntitiesRows {
 
     @Column(nullable = false)
     private boolean receiveAlerts;
+
+    @Override
+    public UUID getId() {
+        return this.preferenceId;
+    }
 }

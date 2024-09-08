@@ -14,7 +14,7 @@ import java.util.UUID;
 @DynamicInsert
 @DynamicUpdate
 @EqualsAndHashCode(callSuper = true)
-public class UserEntity extends StandardEntitiesRows{
+public class UserEntity extends AbstractAuditableEntity{
 
     @Id
     @Column(name = "user_id", nullable = false, updatable = false)
@@ -32,4 +32,9 @@ public class UserEntity extends StandardEntitiesRows{
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private RolesType role;
+
+    @Override
+    public UUID getId() {
+        return this.userId;
+    }
 }
