@@ -1,9 +1,11 @@
 package com.luigivismara.modeldomain.interceptors;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.luigivismara.modeldomain.entity.AuditLogEntity;
 import com.luigivismara.modeldomain.entity.AuditableEntity;
 import com.luigivismara.modeldomain.repository.AuditLogRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
@@ -21,13 +23,13 @@ import static com.luigivismara.modeldomain.enums.AuditActionType.*;
 @Aspect
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AuditLogAspect {
 
-    private static final Logger log = LoggerFactory.getLogger(AuditLogAspect.class);
     private final AuditLogRepository auditLogRepository;
 
     @Before("execution(* com.luigivismara.modeldomain.repository.*.save(..))")
-    public void logBeforeSave(JoinPoint joinPoint) {
+    public void logBeforeSave(JoinPoint joinPoint) throws JsonProcessingException {
         var entity = joinPoint.getArgs()[0];
         if (entity instanceof AuditableEntity auditable) {
             var entityType = entity.getClass().getSimpleName();
@@ -42,9 +44,8 @@ public class AuditLogAspect {
                     .username(SecurityContextHolder.getContext().getAuthentication().getName())
                     .timestamp(LocalDateTime.now())
                     .build();
-
             if (action.equals(UPDATE)) {
-                log.setOldValues(auditable.getOldValues());
+                log.setOldValues(auditable.getOldValues(log));
             }
 
             log.setNewValues(auditable.getNewValues());
@@ -54,7 +55,7 @@ public class AuditLogAspect {
     }
 
     @Before("execution(* com.luigivismara.modeldomain.repository.*.delete(..))")
-    public void logBeforeDelete(JoinPoint joinPoint) {
+    public void logBeforeDelete(JoinPoint joinPoint) throws JsonProcessingException {
         forDeleteOrDisableMethod(joinPoint);
     }
 
@@ -74,8 +75,12 @@ public class AuditLogAspect {
                                 .action(DELETE)
                                 .username(SecurityContextHolder.getContext().getAuthentication().getName())
                                 .timestamp(LocalDateTime.now())
-                                .oldValues(auditable.getOldValues())
                                 .build();
+                        try {
+                            log.setOldValues(auditable.getOldValues(entity));
+                        } catch (JsonProcessingException e) {
+                            throw new RuntimeException(e);
+                        }
 
                         auditLogRepository.save(log);
                     }
@@ -86,7 +91,7 @@ public class AuditLogAspect {
         }
     }
 
-    private void forDeleteOrDisableMethod(JoinPoint joinPoint) {
+    private void forDeleteOrDisableMethod(JoinPoint joinPoint) throws JsonProcessingException {
         var entity = joinPoint.getArgs()[0];
         if (entity instanceof AuditableEntity auditable) {
             var log = AuditLogEntity.builder()
@@ -95,9 +100,8 @@ public class AuditLogAspect {
                     .action(DELETE)
                     .username(SecurityContextHolder.getContext().getAuthentication().getName())
                     .timestamp(LocalDateTime.now())
-                    .oldValues(auditable.getOldValues())
                     .build();
-
+            log.setOldValues(auditable.getOldValues(auditable));
             auditLogRepository.save(log);
         }
     }
