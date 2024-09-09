@@ -15,27 +15,28 @@ import java.util.stream.Collectors;
 public class UserServicesImpl implements UserServices {
 
     private final UserRepository userRepository;
+    private final ObjectMapper objectMapper;
 
-    public UserServicesImpl(UserRepository userRepository) {
+
+    public UserServicesImpl(UserRepository userRepository, ObjectMapper objectMapper) {
         this.userRepository = userRepository;
+        this.objectMapper = objectMapper;
     }
 
     public List<UserDtoResponse> list() {
 
-        ObjectMapper mapeador = new ObjectMapper();
         List<UserEntity> user = userRepository.findAll();
         List<UserDtoResponse> userDtoResponses = user.stream()
-                .map(users -> mapeador.convertValue(user, UserDtoResponse.class))
+                .map(users -> objectMapper.convertValue(user, UserDtoResponse.class))
                 .collect(Collectors.toList());
 
         return userDtoResponses;
     }
 
     public UserDtoResponse create(UserDto userDto) {
-        ObjectMapper mapper = new ObjectMapper();
-        UserEntity userEntity = mapper.convertValue(userDto, UserEntity.class);
+        UserEntity userEntity = objectMapper.convertValue(userDto, UserEntity.class);
         UserEntity response = userRepository.save(userEntity);
-        return mapper.convertValue(response, UserDtoResponse.class);
+        return objectMapper.convertValue(response, UserDtoResponse.class);
 
     }
 }
