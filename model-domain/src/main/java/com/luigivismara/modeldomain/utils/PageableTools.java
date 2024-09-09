@@ -1,4 +1,4 @@
-package com.luigivismara.modeldomain;
+package com.luigivismara.modeldomain.utils;
 
 import com.luigivismara.modeldomain.http.HttpResponse;
 import lombok.AllArgsConstructor;

@@ -9,7 +9,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -20,11 +22,10 @@ import static com.luigivismara.modeldomain.enums.AuditActionType.*;
 
 @Slf4j
 @Aspect
-@Service
-@RequiredArgsConstructor
+@Component
 public class AuditLogAspect {
-
-    private final AuditLogRepository auditLogRepository;
+    @Autowired
+    private AuditLogRepository auditLogRepository;
 
     @Before("execution(* com.luigivismara.modeldomain.repository.*.save(..))")
     public void logBeforeSave(JoinPoint joinPoint) throws JsonProcessingException {
@@ -75,7 +76,6 @@ public class AuditLogAspect {
                                 .username(SecurityContextHolder.getContext().getAuthentication().getName())
                                 .timestamp(LocalDateTime.now())
                                 .build();
-
 
 
                         auditLogRepository.save(logEntity);
