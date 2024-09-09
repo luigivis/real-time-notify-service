@@ -1,14 +1,14 @@
 package com.luigivismara.modeldomain.interceptors;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.luigivismara.modeldomain.entity.AuditLogEntity;
 import com.luigivismara.modeldomain.entity.AuditableEntity;
 import com.luigivismara.modeldomain.repository.AuditLogRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -18,16 +18,16 @@ import java.util.UUID;
 
 import static com.luigivismara.modeldomain.enums.AuditActionType.*;
 
+@Slf4j
 @Aspect
 @Service
 @RequiredArgsConstructor
 public class AuditLogAspect {
 
-    private static final Logger log = LoggerFactory.getLogger(AuditLogAspect.class);
     private final AuditLogRepository auditLogRepository;
 
     @Before("execution(* com.luigivismara.modeldomain.repository.*.save(..))")
-    public void logBeforeSave(JoinPoint joinPoint) {
+    public void logBeforeSave(JoinPoint joinPoint) throws JsonProcessingException {
         var entity = joinPoint.getArgs()[0];
         if (entity instanceof AuditableEntity auditable) {
             var entityType = entity.getClass().getSimpleName();
@@ -44,7 +44,7 @@ public class AuditLogAspect {
                     .build();
 
             if (action.equals(UPDATE)) {
-                log.setOldValues(auditable.getOldValues());
+                log.setOldValues(auditable.getOldValues(entity));
             }
 
             log.setNewValues(auditable.getNewValues());
@@ -59,7 +59,7 @@ public class AuditLogAspect {
     }
 
     @Before("execution(* com.luigivismara.modeldomain.repository.*.deleteById(..))")
-    public void logBeforeDeleteById(JoinPoint joinPoint) {
+    public void logBeforeDeleteById(JoinPoint joinPoint) throws JsonProcessingException {
         final var id = joinPoint.getArgs()[0];
         if (id instanceof UUID || id instanceof Long) {
             final var repository = joinPoint.getTarget();
@@ -68,16 +68,17 @@ public class AuditLogAspect {
                 final var entityOptional = (Optional<?>) findByIdMethod.invoke(repository, id);
                 entityOptional.ifPresent(entity -> {
                     if (entity instanceof AuditableEntity auditable) {
-                        final var log = AuditLogEntity.builder()
+                        final AuditLogEntity logEntity = AuditLogEntity.builder()
                                 .entityType(entity.getClass().getSimpleName())
                                 .entityId(auditable.getId())
                                 .action(DELETE)
                                 .username(SecurityContextHolder.getContext().getAuthentication().getName())
                                 .timestamp(LocalDateTime.now())
-                                .oldValues(auditable.getOldValues())
                                 .build();
 
-                        auditLogRepository.save(log);
+
+
+                        auditLogRepository.save(logEntity);
                     }
                 });
             } catch (Exception e) {
@@ -89,16 +90,21 @@ public class AuditLogAspect {
     private void forDeleteOrDisableMethod(JoinPoint joinPoint) {
         var entity = joinPoint.getArgs()[0];
         if (entity instanceof AuditableEntity auditable) {
-            var log = AuditLogEntity.builder()
+            var logEntity = AuditLogEntity.builder()
                     .entityType(entity.getClass().getSimpleName())
                     .entityId(auditable.getId())
                     .action(DELETE)
                     .username(SecurityContextHolder.getContext().getAuthentication().getName())
                     .timestamp(LocalDateTime.now())
-                    .oldValues(auditable.getOldValues())
                     .build();
 
-            auditLogRepository.save(log);
+            try {
+                logEntity.setOldValues(auditable.getOldValues(entity));
+            } catch (JsonProcessingException e) {
+                log.error("Error during deleting entity", e);
+            }
+
+            auditLogRepository.save(logEntity);
         }
     }
 }
