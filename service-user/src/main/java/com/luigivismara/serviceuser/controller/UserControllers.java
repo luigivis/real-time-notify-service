@@ -5,6 +5,7 @@ import com.luigivismara.modeldomain.http.HttpResponse;
 import com.luigivismara.serviceuser.dto.response.UserDtoResponse;
 import com.luigivismara.serviceuser.dto.resquest.UserDto;
 import com.luigivismara.serviceuser.services.UserServices;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -21,7 +22,7 @@ public class UserControllers {
     private final UserServices services;
 
     @PostMapping
-    public HttpResponse<UserDtoResponse> create(@RequestBody UserDto user) throws JsonProcessingException {
+    public HttpResponse<UserDtoResponse> create(@Valid @RequestBody UserDto user) throws JsonProcessingException {
         return services.create(user);
     }
 }

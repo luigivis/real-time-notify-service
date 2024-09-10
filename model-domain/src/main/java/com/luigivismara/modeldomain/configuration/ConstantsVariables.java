@@ -10,4 +10,7 @@ public class ConstantsVariables {
     public static final String APPLICATION_VERSION = "1.0";
 
     public static final String SERVER_CONNECTION_TIMEOUT = "5000";
+
+    public static final String PATTERN_SECURE_PASSWORD = "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$";
+    public static final String PATTERN_SECURE_PASSWORD_MESSAGE = "The password must be at least 8 characters long, contain at least one uppercase letter, one lowercase letter, one digit, and one special character (@, $, !, %, *, ?, &).";
 }

@@ -32,7 +32,7 @@ public class UserEntity extends AbstractAuditableEntity{
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private RolesType role;
+    private RolesType role = RolesType.USER;
 
     @JsonIgnore
     @Override
