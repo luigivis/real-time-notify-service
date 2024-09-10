@@ -1,7 +1,5 @@
 package com.luigivismara.modeldomain.enums;
 
-import java.io.Serializable;
-
-public enum AuditActionType implements Serializable {
+public enum AuditActionType{
     UPDATE, CREATE, DELETE
 }

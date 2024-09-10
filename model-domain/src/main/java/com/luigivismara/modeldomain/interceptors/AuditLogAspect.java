@@ -9,8 +9,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -20,10 +21,9 @@ import static com.luigivismara.modeldomain.enums.AuditActionType.*;
 
 @Slf4j
 @Aspect
-@Service
-@RequiredArgsConstructor
+@Component
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class AuditLogAspect {
-
     private final AuditLogRepository auditLogRepository;
 
     @Before("execution(* com.luigivismara.modeldomain.repository.*.save(..))")
@@ -59,7 +59,7 @@ public class AuditLogAspect {
     }
 
     @Before("execution(* com.luigivismara.modeldomain.repository.*.deleteById(..))")
-    public void logBeforeDeleteById(JoinPoint joinPoint) throws JsonProcessingException {
+    public void logBeforeDeleteById(JoinPoint joinPoint) {
         final var id = joinPoint.getArgs()[0];
         if (id instanceof UUID || id instanceof Long) {
             final var repository = joinPoint.getTarget();
@@ -75,7 +75,6 @@ public class AuditLogAspect {
                                 .username(SecurityContextHolder.getContext().getAuthentication().getName())
                                 .timestamp(LocalDateTime.now())
                                 .build();
-
 
 
                         auditLogRepository.save(logEntity);

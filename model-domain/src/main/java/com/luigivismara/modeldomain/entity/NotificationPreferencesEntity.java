@@ -8,7 +8,7 @@ import org.hibernate.annotations.DynamicUpdate;
 
 import java.util.UUID;
 
-@Entity
+@Entity(name = "notification_preferences")
 @Data
 @DynamicInsert
 @DynamicUpdate
