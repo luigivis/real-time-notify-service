@@ -1,4 +1,4 @@
-package com.luigivismara.serviceuser.dto.request;
+package com.luigivismara.modeldomain.security.dto.request;
 
 import com.luigivismara.modeldomain.annotation.NotBlankWithFieldName;
 

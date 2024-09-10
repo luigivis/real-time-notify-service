@@ -1,4 +1,4 @@
-package com.luigivismara.serviceuser.dto.response;
+package com.luigivismara.modeldomain.security.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.luigivismara.modeldomain.enums.RolesType;
