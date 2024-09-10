@@ -1,5 +1,6 @@
 package com.luigivismara.modeldomain.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.luigivismara.modeldomain.enums.RolesType;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -33,6 +34,7 @@ public class UserEntity extends AbstractAuditableEntity{
     @Column(nullable = false)
     private RolesType role;
 
+    @JsonIgnore
     @Override
     public UUID getId() {
         return this.userId;

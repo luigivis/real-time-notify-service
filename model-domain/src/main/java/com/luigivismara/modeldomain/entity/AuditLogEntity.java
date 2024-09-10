@@ -17,7 +17,8 @@ import java.util.UUID;
 @Entity
 @Table(name = "audit_log", indexes = {
         @Index(name = "idx_entity_type", columnList = "entityType"),
-        @Index(name = "idx_username", columnList = "username")
+        @Index(name = "idx_username", columnList = "username"),
+        @Index(name = "idx_entity_id", columnList = "entityId")
 })
 public class AuditLogEntity {
     @Id
@@ -27,7 +28,7 @@ public class AuditLogEntity {
     @Column(nullable = false)
     private String entityType;
 
-    @Column(nullable = false)
+    @Column
     private UUID entityId;
 
     @Enumerated(EnumType.STRING)
@@ -45,5 +46,4 @@ public class AuditLogEntity {
 
     @Lob
     private String newValues;
-
 }

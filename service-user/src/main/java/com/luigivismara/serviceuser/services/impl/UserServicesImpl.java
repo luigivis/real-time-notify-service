@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -41,6 +42,7 @@ public class UserServicesImpl implements UserServices {
     @Override
     public HttpResponse<UserDtoResponse> create(UserDto userDto) {
         var userEntity = objectMapper.convertValue(userDto, UserEntity.class);
+        userEntity.setUserId(UUID.randomUUID());
         var response = userRepository.save(userEntity);
         var result = objectMapper.convertValue(response, UserDtoResponse.class);
         return new HttpResponse<>(HttpStatus.CREATED, result);
@@ -48,7 +50,6 @@ public class UserServicesImpl implements UserServices {
 
     @Override
     public HttpResponse<PageableTools.PaginationDto> list(PageRequest pageRequest) {
-
         return pageableTools.pagination(userRepository.findAll(pageRequest));
     }
 }
