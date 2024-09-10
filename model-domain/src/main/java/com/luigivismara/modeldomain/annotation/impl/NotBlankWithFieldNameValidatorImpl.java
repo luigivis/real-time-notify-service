@@ -18,7 +18,7 @@ public class NotBlankWithFieldNameValidatorImpl implements ConstraintValidator<N
                     .getPath()
                     .asString();
 
-            fieldName = fieldName.substring(0, 1).toUpperCase();
+            fieldName = fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1);
 
             context.disableDefaultConstraintViolation();
             context.buildConstraintViolationWithTemplate(fieldName + INVALID_STRING_NOT_BLANK)
