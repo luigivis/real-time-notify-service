@@ -2,15 +2,14 @@ package com.luigivismara.serviceuser.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.luigivismara.modeldomain.http.HttpResponse;
+import com.luigivismara.modeldomain.utils.PageableTools;
+import com.luigivismara.serviceuser.dto.request.UserDto;
 import com.luigivismara.serviceuser.dto.response.UserDtoResponse;
-import com.luigivismara.serviceuser.dto.resquest.UserDto;
 import com.luigivismara.serviceuser.services.UserServices;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.web.bind.annotation.*;
 
 import static com.luigivismara.modeldomain.configuration.ConstantsVariables.API_V1;
 
@@ -21,8 +20,14 @@ public class UserControllers {
 
     private final UserServices services;
 
-    @PostMapping
-    public HttpResponse<UserDtoResponse> create(@Valid @RequestBody UserDto user) throws JsonProcessingException {
+    @PostMapping("/register")
+    public HttpResponse<UserDtoResponse> register(@Valid @RequestBody UserDto user) throws JsonProcessingException {
         return services.create(user);
+    }
+
+    @GetMapping("/list")
+    public HttpResponse<PageableTools.PaginationDto> list(@RequestParam(defaultValue = "3") int size,
+                                                          @RequestParam(defaultValue = "0") int page) {
+        return services.list(PageRequest.of(page, size));
     }
 }

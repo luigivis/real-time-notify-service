@@ -38,7 +38,8 @@ public class CustomExceptionHandler {
     }
 
     @ExceptionHandler(ConnectException.class)
-    public HttpResponse<?> handleConflict(ConnectException ex) {
+    public HttpResponse<?> handleConflict() {
         return new HttpResponse<>(HttpStatus.SERVICE_UNAVAILABLE, "Connection refused");
     }
+
 }

@@ -5,8 +5,8 @@ import com.luigivismara.modeldomain.entity.UserEntity;
 import com.luigivismara.modeldomain.http.HttpResponse;
 import com.luigivismara.modeldomain.repository.UserRepository;
 import com.luigivismara.modeldomain.utils.PageableTools;
+import com.luigivismara.serviceuser.dto.request.UserDto;
 import com.luigivismara.serviceuser.dto.response.UserDtoResponse;
-import com.luigivismara.serviceuser.dto.resquest.UserDto;
 import com.luigivismara.serviceuser.services.UserServices;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -52,4 +52,63 @@ public class UserServicesImpl implements UserServices {
     public HttpResponse<PageableTools.PaginationDto> list(PageRequest pageRequest) {
         return pageableTools.pagination(userRepository.findAll(pageRequest));
     }
+
+    @Override
+    public HttpResponse<UserDtoResponse> getById(UUID id) {
+        return userRepository.findById(id)
+                .map(user -> new HttpResponse<>(HttpStatus.OK, objectMapper.convertValue(user, UserDtoResponse.class)))
+                .orElse(new HttpResponse<>(HttpStatus.NOT_FOUND));
+    }
+
+    @Override
+    public HttpResponse<UserDtoResponse> update(UUID id, UserDto userDto) {
+        return userRepository.findById(id)
+                .map(user -> {
+                    user.setUsername(userDto.getUsername());
+                    user.setEmail(userDto.getEmail());
+                    if (userDto.getPassword() != null) {
+                        user.setPassword(passwordEncoder.encode(userDto.getPassword()));
+                    }
+                    var updatedUser = userRepository.save(user);
+                    return new HttpResponse<>(HttpStatus.OK, objectMapper.convertValue(updatedUser, UserDtoResponse.class));
+                })
+                .orElse(new HttpResponse<>(HttpStatus.NOT_FOUND));
+    }
+
+    @Override
+    public HttpResponse<Object> delete(UUID id) {
+        return userRepository.findById(id)
+                .map(user -> {
+                    userRepository.delete(user);
+                    return new HttpResponse<>(HttpStatus.NO_CONTENT);
+                })
+                .orElse(new HttpResponse<>(HttpStatus.NOT_FOUND));
+    }
+
+    @Override
+    public HttpResponse<UserDtoResponse> getByUsername(String username) {
+        return userRepository.findByUsername(username)
+                .map(user -> new HttpResponse<>(HttpStatus.OK, objectMapper.convertValue(user, UserDtoResponse.class)))
+                .orElse(new HttpResponse<>(HttpStatus.NOT_FOUND));
+    }
+
+    @Override
+    public HttpResponse<UserDtoResponse> getByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .map(user -> new HttpResponse<>(HttpStatus.OK, objectMapper.convertValue(user, UserDtoResponse.class)))
+                .orElse(new HttpResponse<>(HttpStatus.NOT_FOUND));
+    }
+
+    @Override
+    public HttpResponse<Boolean> existsByUsername(String username) {
+        boolean exists = userRepository.existsByUsername(username);
+        return new HttpResponse<>(HttpStatus.OK, exists);
+    }
+
+    @Override
+    public HttpResponse<Boolean> existsByEmail(String email) {
+        boolean exists = userRepository.existsByEmail(email);
+        return new HttpResponse<>(HttpStatus.OK, exists);
+    }
+
 }

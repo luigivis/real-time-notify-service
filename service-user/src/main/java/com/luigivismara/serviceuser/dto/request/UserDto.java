@@ -1,4 +1,4 @@
-package com.luigivismara.serviceuser.dto.resquest;
+package com.luigivismara.serviceuser.dto.request;
 
 import com.luigivismara.modeldomain.annotation.NotBlankWithFieldName;
 import jakarta.validation.constraints.Email;
