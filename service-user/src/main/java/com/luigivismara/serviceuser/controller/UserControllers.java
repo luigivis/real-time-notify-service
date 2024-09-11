@@ -9,6 +9,7 @@ import com.luigivismara.serviceuser.services.UserServices;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import static com.luigivismara.modeldomain.configuration.ConstantsVariables.API_V1;
@@ -25,6 +26,7 @@ public class UserControllers {
         return services.create(user);
     }
 
+    @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping("/list")
     public HttpResponse<PageableTools.PaginationDto> list(@RequestParam(defaultValue = "3") int size,
                                                           @RequestParam(defaultValue = "0") int page) {

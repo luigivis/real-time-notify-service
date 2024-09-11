@@ -2,11 +2,13 @@ package com.luigivismara.serviceuser.services.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.luigivismara.modeldomain.entity.UserEntity;
+import com.luigivismara.modeldomain.http.GenericResponse;
 import com.luigivismara.modeldomain.http.HttpResponse;
 import com.luigivismara.modeldomain.repository.UserRepository;
 import com.luigivismara.modeldomain.utils.PageableTools;
 import com.luigivismara.serviceuser.dto.request.UserDto;
 import com.luigivismara.serviceuser.dto.response.UserDtoResponse;
+import com.luigivismara.serviceuser.dto.response.UserLoginResponse;
 import com.luigivismara.serviceuser.services.UserServices;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,6 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.swing.plaf.PanelUI;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -50,8 +53,19 @@ public class UserServicesImpl implements UserServices {
 
     @Override
     public HttpResponse<PageableTools.PaginationDto> list(PageRequest pageRequest) {
-        return pageableTools.pagination(userRepository.findAll(pageRequest));
+        var result = pageableTools.pagination(userRepository.findAll(pageRequest));
+        if (result.getBody() == null) {
+            return new HttpResponse<>(HttpStatus.NOT_FOUND);
+        }
+        var paginationDto = ((GenericResponse<PageableTools.PaginationDto>) result.getBody());
+        var list = ((List<UserEntity>) paginationDto.getData().getValue())
+                .stream()
+                .map(userEntity -> objectMapper.convertValue(userEntity, UserDtoResponse.class))
+                .toList();
+        paginationDto.getData().setValue(list);
+        return new HttpResponse<>(HttpStatus.OK, paginationDto.getData());
     }
+
 
     @Override
     public HttpResponse<UserDtoResponse> getById(UUID id) {
