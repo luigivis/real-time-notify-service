@@ -17,7 +17,6 @@ import static com.luigivismara.modeldomain.configuration.ConstantsVariables.API_
 @RequiredArgsConstructor
 public class AuthController {
 
-
     private final AuthService authService;
 
     @PostMapping("/login")
