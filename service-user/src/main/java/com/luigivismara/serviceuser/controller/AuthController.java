@@ -1,19 +1,14 @@
 package com.luigivismara.serviceuser.controller;
 
 import com.luigivismara.modeldomain.http.HttpResponse;
-import com.luigivismara.modeldomain.security.JwtUtil;
-import com.luigivismara.serviceuser.dto.request.LoginRequest;
-import com.luigivismara.serviceuser.dto.response.JwtResponse;
-import org.springframework.http.HttpStatus;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.UserDetailsService;
+import com.luigivismara.modeldomain.security.dto.request.LoginRequest;
+import com.luigivismara.modeldomain.security.dto.response.JwtResponse;
+import com.luigivismara.modeldomain.security.service.AuthService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import com.luigivismara.modeldomain.enums.TokenType;
-import lombok.RequiredArgsConstructor;
 
 import static com.luigivismara.modeldomain.configuration.ConstantsVariables.API_V1;
 
@@ -22,19 +17,10 @@ import static com.luigivismara.modeldomain.configuration.ConstantsVariables.API_
 @RequiredArgsConstructor
 public class AuthController {
 
-    private final AuthenticationManager authenticationManager;
-    private final UserDetailsService userDetailsService;
-    private final JwtUtil jwtUtil;
+    private final AuthService authService;
 
     @PostMapping("/login")
     public HttpResponse<JwtResponse> login(@RequestBody LoginRequest loginRequest) {
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword())
-        );
-
-        final var userDetails = userDetailsService.loadUserByUsername(loginRequest.getUsername());
-        final var jwt = jwtUtil.generateToken(userDetails);
-
-        return new HttpResponse<>(HttpStatus.OK, new JwtResponse(jwt, TokenType.BEARER));
+        return authService.login(loginRequest);
     }
 }
