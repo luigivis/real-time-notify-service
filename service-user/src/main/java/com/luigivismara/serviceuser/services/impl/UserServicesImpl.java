@@ -2,13 +2,13 @@ package com.luigivismara.serviceuser.services.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.luigivismara.modeldomain.entity.UserEntity;
+import com.luigivismara.modeldomain.enums.RolesType;
 import com.luigivismara.modeldomain.http.GenericResponse;
 import com.luigivismara.modeldomain.http.HttpResponse;
 import com.luigivismara.modeldomain.repository.UserRepository;
 import com.luigivismara.modeldomain.utils.PageableTools;
 import com.luigivismara.serviceuser.dto.request.UserDto;
 import com.luigivismara.serviceuser.dto.response.UserDtoResponse;
-import com.luigivismara.serviceuser.dto.response.UserLoginResponse;
 import com.luigivismara.serviceuser.services.UserServices;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,7 +17,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import javax.swing.plaf.PanelUI;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -46,6 +45,7 @@ public class UserServicesImpl implements UserServices {
         var userEntity = objectMapper.convertValue(userDto, UserEntity.class);
         userEntity.setUserId(UUID.randomUUID());
         userEntity.setPassword(passwordEncoder.encode(userEntity.getPassword()));
+        userEntity.setRole(RolesType.USER);
         var response = userRepository.save(userEntity);
         var result = objectMapper.convertValue(response, UserDtoResponse.class);
         return new HttpResponse<>(HttpStatus.CREATED, result);
@@ -57,11 +57,16 @@ public class UserServicesImpl implements UserServices {
         if (result.getBody() == null) {
             return new HttpResponse<>(HttpStatus.NOT_FOUND);
         }
+
+        @SuppressWarnings("unchecked")
         var paginationDto = ((GenericResponse<PageableTools.PaginationDto>) result.getBody());
+
+        @SuppressWarnings("unchecked")
         var list = ((List<UserEntity>) paginationDto.getData().getValue())
                 .stream()
                 .map(userEntity -> objectMapper.convertValue(userEntity, UserDtoResponse.class))
                 .toList();
+
         paginationDto.getData().setValue(list);
         return new HttpResponse<>(HttpStatus.OK, paginationDto.getData());
     }
