@@ -5,6 +5,7 @@ import com.luigivismara.modeldomain.http.HttpResponse;
 import com.luigivismara.modeldomain.utils.PageableTools;
 import com.luigivismara.serviceuser.dto.request.UserDto;
 import com.luigivismara.serviceuser.dto.response.UserDtoResponse;
+import com.luigivismara.serviceuser.dto.response.UserLoginResponse;
 import org.springframework.data.domain.PageRequest;
 
 import java.util.UUID;

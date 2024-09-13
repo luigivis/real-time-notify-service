@@ -2,6 +2,8 @@ package com.luigivismara.serviceuser.services.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.luigivismara.modeldomain.entity.UserEntity;
+import com.luigivismara.modeldomain.enums.RolesType;
+import com.luigivismara.modeldomain.http.GenericResponse;
 import com.luigivismara.modeldomain.http.HttpResponse;
 import com.luigivismara.modeldomain.repository.UserRepository;
 import com.luigivismara.modeldomain.utils.PageableTools;
@@ -43,6 +45,7 @@ public class UserServicesImpl implements UserServices {
         var userEntity = objectMapper.convertValue(userDto, UserEntity.class);
         userEntity.setUserId(UUID.randomUUID());
         userEntity.setPassword(passwordEncoder.encode(userEntity.getPassword()));
+        userEntity.setRole(RolesType.USER);
         var response = userRepository.save(userEntity);
         var result = objectMapper.convertValue(response, UserDtoResponse.class);
         return new HttpResponse<>(HttpStatus.CREATED, result);
@@ -50,8 +53,24 @@ public class UserServicesImpl implements UserServices {
 
     @Override
     public HttpResponse<PageableTools.PaginationDto> list(PageRequest pageRequest) {
-        return pageableTools.pagination(userRepository.findAll(pageRequest));
+        var result = pageableTools.pagination(userRepository.findAll(pageRequest));
+        if (result.getBody() == null) {
+            return new HttpResponse<>(HttpStatus.NOT_FOUND);
+        }
+
+        @SuppressWarnings("unchecked")
+        var paginationDto = ((GenericResponse<PageableTools.PaginationDto>) result.getBody());
+
+        @SuppressWarnings("unchecked")
+        var list = ((List<UserEntity>) paginationDto.getData().getValue())
+                .stream()
+                .map(userEntity -> objectMapper.convertValue(userEntity, UserDtoResponse.class))
+                .toList();
+
+        paginationDto.getData().setValue(list);
+        return new HttpResponse<>(HttpStatus.OK, paginationDto.getData());
     }
+
 
     @Override
     public HttpResponse<UserDtoResponse> getById(UUID id) {
