@@ -1,0 +1,10 @@
+${AnsiColor.BLUE}  _____ _____ _   _  ____
+${AnsiColor.BLUE} |  __ \_   _| \ | |/ __ \
+${AnsiColor.BLUE} | |__) || | |  \| | |  | |
+${AnsiColor.BLUE} |  _  / | | | . ` | |  | |
+${AnsiColor.BLUE} | | \ \ | | | |\  | |__| |
+${AnsiColor.BLUE} |_|  \_\|_| |_| \_|\____/ ${AnsiColor.DEFAULT} Real-Time Notify Service
+
+${AnsiColor.BRIGHT_GREEN}Application Name: ${spring.application.name}${AnsiColor.DEFAULT}
+${AnsiBackground.DEFAULT}Swagger: http://localhost:${server.port}/swagger-ui/index.html#
+${AnsiColor.BRIGHT_CYAN}Spring Boot Version: ${spring-boot.version}${AnsiColor.DEFAULT}
