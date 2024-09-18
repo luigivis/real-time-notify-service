@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import static com.luigivismara.modeldomain.configuration.ConstantsVariables.API_V1;
 
+
 @RestController
 @RequestMapping(API_V1 + "/users")
 @RequiredArgsConstructor
