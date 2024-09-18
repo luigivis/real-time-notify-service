@@ -8,6 +8,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.io.Serializable;
+
 @Slf4j
 @Service
 public class PageableTools {
@@ -34,7 +36,7 @@ public class PageableTools {
 
     @Data
     @AllArgsConstructor
-    public static class PaginationDto {
+    public static class PaginationDto implements Serializable {
         private Object value;
         private Integer currentPage;
         private Integer totalPages;

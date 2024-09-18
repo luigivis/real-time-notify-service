@@ -8,11 +8,13 @@ import com.luigivismara.serviceuser.dto.response.UserDtoResponse;
 import com.luigivismara.serviceuser.services.UserServices;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import static com.luigivismara.modeldomain.configuration.ConstantsVariables.API_V1;
+
 
 @RestController
 @RequestMapping(API_V1 + "/users")
@@ -22,12 +24,14 @@ public class UserControllers {
     private final UserServices services;
 
     @PostMapping("/register")
+    @Cacheable(value = {"user", "create"}, key = "#user.username", cacheManager = "customCacheManager")
     public HttpResponse<UserDtoResponse> register(@Valid @RequestBody UserDto user) throws JsonProcessingException {
         return services.create(user);
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping("/list")
+    @Cacheable(value = {"user", "list"}, key = "{#size, '|', #page}")
     public HttpResponse<PageableTools.PaginationDto> list(@RequestParam(defaultValue = "3") int size,
                                                           @RequestParam(defaultValue = "0") int page) {
         return services.list(PageRequest.of(page, size));
