@@ -8,6 +8,7 @@ import lombok.EqualsAndHashCode;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
+import java.io.Serializable;
 import java.util.UUID;
 
 @Data
@@ -15,7 +16,7 @@ import java.util.UUID;
 @DynamicInsert
 @DynamicUpdate
 @EqualsAndHashCode(callSuper = true)
-public class UserEntity extends AbstractAuditableEntity{
+public class UserEntity extends AbstractAuditableEntity implements Serializable {
 
     @Id
     @Column(name = "user_id", nullable = false, updatable = false)
