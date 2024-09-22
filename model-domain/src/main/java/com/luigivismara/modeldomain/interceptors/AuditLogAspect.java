@@ -1,15 +1,22 @@
 package com.luigivismara.modeldomain.interceptors;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.luigivismara.modeldomain.configuration.ObjectMapperConfig;
 import com.luigivismara.modeldomain.entity.AuditLogEntity;
 import com.luigivismara.modeldomain.entity.AuditableEntity;
+import com.luigivismara.modeldomain.enums.RolesType;
 import com.luigivismara.modeldomain.repository.AuditLogRepository;
+import com.luigivismara.modeldomain.repository.UserRepository;
+import com.luigivismara.modeldomain.security.dto.request.LoginRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
+import org.aspectj.lang.annotation.After;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
@@ -25,6 +32,8 @@ import static com.luigivismara.modeldomain.enums.AuditActionType.*;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class AuditLogAspect {
     private final AuditLogRepository auditLogRepository;
+
+    private final UserRepository userRepository;
 
     @Before("execution(* com.luigivismara.modeldomain.repository.*.save(..))")
     public void logBeforeSave(JoinPoint joinPoint) throws JsonProcessingException {
@@ -51,6 +60,40 @@ public class AuditLogAspect {
 
             auditLogRepository.save(log);
         }
+    }
+
+    @Async("async")
+    @After("@annotation(com.luigivismara.modeldomain.annotation.Login)")
+    public void logBeforeFindByUsername(JoinPoint joinPoint) throws JsonProcessingException {
+        var info = (LoginRequest) joinPoint.getArgs()[0];
+
+        try{
+            SecurityContextHolder
+                    .getContext()
+                    .getAuthentication()
+                    .getAuthorities()
+                    .stream().map(GrantedAuthority::getAuthority)
+                    .toList().forEach(RolesType::valueOf);
+
+            var user = userRepository.findByUsername(info.getUsername());
+
+            if (user.isEmpty()) return;
+
+            var log = AuditLogEntity.builder()
+                    .entityType(user.get().getClass().getSimpleName())
+                    .entityId(user.get().getUserId())
+                    .action(LOGIN)
+                    .username(SecurityContextHolder.getContext().getAuthentication().getName())
+                    .newValues(ObjectMapperConfig.ObjectMapper().writeValueAsString(user.get()))
+                    .timestamp(LocalDateTime.now())
+                    .build();
+
+            auditLogRepository.save(log);
+        }catch (Exception e){
+            log.error("No saving login in audit");
+        }
+
+
     }
 
     @Before("execution(* com.luigivismara.modeldomain.repository.*.delete(..))")

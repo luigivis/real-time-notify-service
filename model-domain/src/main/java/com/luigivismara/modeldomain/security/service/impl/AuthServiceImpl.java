@@ -1,5 +1,6 @@
 package com.luigivismara.modeldomain.security.service.impl;
 
+import com.luigivismara.modeldomain.annotation.Login;
 import com.luigivismara.modeldomain.enums.TokenType;
 import com.luigivismara.modeldomain.http.HttpResponse;
 import com.luigivismara.modeldomain.security.JwtUtil;
@@ -10,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +23,7 @@ public class AuthServiceImpl implements AuthService {
     private final JwtUtil jwtUtil;
 
     @Override
+    @Login
     public HttpResponse<JwtResponse> login(LoginRequest loginRequest) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword())
@@ -29,6 +32,7 @@ public class AuthServiceImpl implements AuthService {
         final var userDetails = userDetailsService.loadUserByUsername(loginRequest.getUsername());
         final var jwt = jwtUtil.generateToken(userDetails);
 
+        SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities()));
         return new HttpResponse<>(HttpStatus.OK, new JwtResponse(jwt, TokenType.BEARER));
     }
 }

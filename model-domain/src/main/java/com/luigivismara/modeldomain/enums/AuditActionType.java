@@ -1,5 +1,5 @@
 package com.luigivismara.modeldomain.enums;
 
 public enum AuditActionType{
-    UPDATE, CREATE, DELETE
+    UPDATE, CREATE, DELETE, LOGIN
 }
