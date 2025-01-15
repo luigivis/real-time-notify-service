@@ -1,5 +1,6 @@
 package com.luigivismara.modeldomain.security;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -16,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 
 import static com.luigivismara.modeldomain.configuration.ConstantsVariables.API_V1;
 
+@Slf4j
 @Configuration
 @RequiredArgsConstructor
 public class SecurityConfig {
@@ -25,6 +27,7 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        log.info("Setting up security filter chain");
         http.authorizeHttpRequests(
                         (requests) -> requests.requestMatchers(
                                         API_V1 + "/auth/login",
@@ -41,6 +44,7 @@ public class SecurityConfig {
 
         http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
 
+        log.info("Finished setting up security filter chain");
         return http.build();
     }
 
@@ -51,8 +55,10 @@ public class SecurityConfig {
 
     @Bean
     public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
+        log.info("Setting up authentication manager");
         var authManagerBuilder = http.getSharedObject(AuthenticationManagerBuilder.class);
         authManagerBuilder.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
+        log.info("Finished setting up authentication manager");
         return authManagerBuilder.build();
     }
 }

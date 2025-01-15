@@ -27,6 +27,6 @@ public interface UserRepository extends JpaRepository<UserEntity, UUID> {
     @Cacheable(value = "user:exist:email", key = "#email", cacheManager = "tenMinutesCacheManager")
     boolean existsByEmail(String email);
 
-    @Cacheable(value = "user:list", key = "{ 'size[' + #pageable.pageSize + ']', 'number[' + #pageable.pageNumber + ']'}")
+    @Cacheable(value = "user:list", key = "'k'+{'size[' + #pageable.pageSize + ']', 'number[' + #pageable.pageNumber + ']'}")
     Page<UserEntity> findAll(@NonNull Pageable pageable);
 }

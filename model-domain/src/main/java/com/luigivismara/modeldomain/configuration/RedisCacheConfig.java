@@ -21,20 +21,6 @@ import static org.springframework.data.redis.serializer.RedisSerializationContex
 public class RedisCacheConfig {
 
     @Bean
-    @Primary
-    public CacheManager cacheManager(RedisConnectionFactory redisConnectionFactory) {
-        final var serializer = new JdkSerializationRedisSerializer();
-        final var cacheConfigWithTTL = RedisCacheConfiguration.defaultCacheConfig()
-                .entryTtl(Duration.ofHours(2))
-                .serializeValuesWith(fromSerializer(serializer))
-                .disableCachingNullValues();
-
-        return RedisCacheManager.builder(redisConnectionFactory)
-                .cacheDefaults(cacheConfigWithTTL)
-                .build();
-    }
-
-    @Bean
     public CacheManager tenMinutesCacheManager(RedisConnectionFactory redisConnectionFactory) {
         final var serializer = new JdkSerializationRedisSerializer();
         final var cacheConfigWithTTL = RedisCacheConfiguration.defaultCacheConfig()

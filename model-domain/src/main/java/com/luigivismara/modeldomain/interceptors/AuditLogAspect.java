@@ -111,13 +111,19 @@ public class AuditLogAspect {
                 final var entityOptional = (Optional<?>) findByIdMethod.invoke(repository, id);
                 entityOptional.ifPresent(entity -> {
                     if (entity instanceof AuditableEntity auditable) {
-                        final AuditLogEntity logEntity = AuditLogEntity.builder()
-                                .entityType(entity.getClass().getSimpleName())
-                                .entityId(auditable.getId())
-                                .action(DELETE)
-                                .username(SecurityContextHolder.getContext().getAuthentication().getName())
-                                .timestamp(LocalDateTime.now())
-                                .build();
+                        final AuditLogEntity logEntity;
+                        try {
+                            logEntity = AuditLogEntity.builder()
+                                    .entityType(entity.getClass().getSimpleName())
+                                    .entityId(auditable.getId())
+                                    .action(DELETE)
+                                    .username(SecurityContextHolder.getContext().getAuthentication().getName())
+                                    .timestamp(LocalDateTime.now())
+                                    .oldValues(ObjectMapperConfig.ObjectMapper().writeValueAsString(entityOptional.get()))
+                                    .build();
+                        } catch (JsonProcessingException e) {
+                            throw new RuntimeException(e);
+                        }
 
 
                         auditLogRepository.save(logEntity);
