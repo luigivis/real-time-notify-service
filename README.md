@@ -325,3 +325,89 @@ Suppose a user with **`user_id = 123e4567-e89b-12d3-a456-426614174000`** updates
 - **`entity_type`** is "User", indicating that the affected entity is a user.
 - **`action`** is "UPDATE", showing that an update operation took place.
 - **`old_values`** and **`new_values`** store the previous and updated values, respectively.
+
+
+
+```mermaid
+sequenceDiagram
+    participant Usuario
+    participant API Gateway (Spring Cloud Gateway)
+    participant ServicioAdministracion (Spring Boot, MySQL)
+    participant ServicioGestionUsuarios (Spring Boot, MySQL, Redis)
+    participant ServicioGestionUnidades (Spring Boot, MySQL)
+    participant ServicioControlAccesos (Spring Boot, Redis, Kafka)
+    participant ServicioFinanciero (Spring Boot, MySQL, Kafka)
+    participant ServicioDifusionComunicados (Spring Boot, Firebase, SMTP)
+
+    Usuario->>API Gateway: Solicitud de Registro de Propiedad
+    API Gateway->>ServicioAdministracion: Validar y Guardar Propiedad
+    alt Propiedad ya existe
+        ServicioAdministracion-->>API Gateway: Error: Propiedad duplicada
+        API Gateway-->>Usuario: Error: Propiedad ya registrada
+    else
+        ServicioAdministracion-->>API Gateway: Propiedad Registrada
+        API Gateway-->>Usuario: Registro exitoso
+    end
+
+    Usuario->>API Gateway: Registro del Consejo de Administración
+    API Gateway->>ServicioGestionUsuarios: Validar y Guardar Consejo
+    alt Datos incompletos
+        ServicioGestionUsuarios-->>API Gateway: Error: Información inválida
+        API Gateway-->>Usuario: Error en datos del consejo
+    else
+        ServicioGestionUsuarios-->>API Gateway: Consejo Registrado
+        API Gateway-->>Usuario: Registro exitoso
+    end
+
+    Usuario->>API Gateway: Registro de Unidades Habitacionales
+    API Gateway->>ServicioGestionUnidades: Guardar Unidades
+    alt Error en datos
+        ServicioGestionUnidades-->>API Gateway: Error: Datos inválidos
+        API Gateway-->>Usuario: Error en datos de la unidad
+    else
+        ServicioGestionUnidades-->>API Gateway: Unidades Registradas
+        API Gateway-->>Usuario: Registro exitoso
+    end
+
+    Usuario->>API Gateway: Registro de Residentes
+    API Gateway->>ServicioGestionUsuarios: Validar Identidad y Registrar Residente
+    alt Documento inválido
+        ServicioGestionUsuarios-->>API Gateway: Error: Identidad no validada
+        API Gateway-->>Usuario: Error en validación de residente
+    else
+        ServicioGestionUsuarios-->>API Gateway: Residente Registrado
+        API Gateway-->>Usuario: Registro exitoso
+    end
+
+    Usuario->>API Gateway: Configuración de Accesos
+    API Gateway->>ServicioControlAccesos: Registrar Credenciales (QR/RFID)
+    alt Credencial inválida
+        ServicioControlAccesos-->>API Gateway: Error: Acceso no autorizado
+        API Gateway-->>Usuario: Error en configuración de acceso
+    else
+        ServicioControlAccesos-->>API Gateway: Accesos Configurados
+        API Gateway-->>Usuario: Configuración exitosa
+    end
+
+    Usuario->>API Gateway: Configuración de Cuotas de Mantenimiento
+    API Gateway->>ServicioFinanciero: Calcular y Registrar Cuotas
+    alt Error en cálculo
+        ServicioFinanciero-->>API Gateway: Error: Cuotas no generadas
+        API Gateway-->>Usuario: Error en configuración de cuotas
+    else
+        ServicioFinanciero-->>API Gateway: Cuotas Configuradas
+        API Gateway-->>Usuario: Configuración exitosa
+    end
+
+    Usuario->>API Gateway: Publicación de Normativas y Comunicados
+    API Gateway->>ServicioDifusionComunicados: Enviar Notificación (Firebase/SMTP)
+    alt Falta de permisos
+        ServicioDifusionComunicados-->>API Gateway: Error: No autorizado para publicar
+        API Gateway-->>Usuario: Error en publicación de comunicados
+    else
+        ServicioDifusionComunicados-->>API Gateway: Normativa Publicada
+        API Gateway-->>Usuario: Publicación exitosa
+    end
+
+    Usuario-->>Usuario: Registro de PH Finalizado
+```
